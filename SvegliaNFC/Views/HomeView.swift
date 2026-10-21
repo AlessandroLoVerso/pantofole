@@ -23,6 +23,9 @@ struct HomeView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         notices
+                        if GoodNightButton.isEvening(now) {
+                            GoodNightButton(style: .hero)
+                        }
                         if let hero {
                             NextAlarmCard(
                                 item: hero,
@@ -35,6 +38,7 @@ struct HomeView: View {
                         } else {
                             EmptyAlarmCard { editor = .new }
                         }
+                        SleepScoreCard(now: now)
                         if WakeInsights.tagSeemsTooClose(records.map(\.result)) {
                             TooCloseCard()
                         }
@@ -54,6 +58,9 @@ struct HomeView: View {
                             }
                             .buttonStyle(.secondary)
                         }
+                        if !GoodNightButton.isEvening(now) {
+                            GoodNightButton(style: .compact)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 40)
@@ -71,6 +78,13 @@ struct HomeView: View {
                 }
             }
         }
+        .overlay {
+            // The night screen covers Home while the sleep is tracked (not a modal, so the ringing screen still shows).
+            if model.sleep.isListening {
+                NightView().transition(.opacity)
+            }
+        }
+        .animation(.smooth, value: model.sleep.isListening)
         .sheet(item: $editor) { target in
             AlarmEditorView(item: target.item)
         }
