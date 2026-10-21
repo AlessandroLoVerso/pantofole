@@ -14,6 +14,22 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section {
+                    Button {
+                        Task {
+                            await model.scheduleTestAlarm()
+                            dismiss()
+                        }
+                    } label: {
+                        Label("Fai una sveglia di prova", systemImage: "alarm.waves.left.and.right.fill")
+                            .font(.headline)
+                    }
+                } footer: {
+                    Text(tags.isEmpty
+                        ? "Suona tra 10 secondi, anche col silenzioso: spegnila risolvendo la missione."
+                        : "Suona tra 10 secondi, anche col silenzioso: vai al tag e spegnila.")
+                }
+
+                Section {
                     ForEach(tags) { tag in
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
@@ -38,21 +54,6 @@ struct SettingsView: View {
                     Text("I tuoi tag")
                 } footer: {
                     Text("Con più tag puoi spegnere la sveglia da uno qualsiasi, per esempio uno in bagno e uno in cucina.")
-                }
-
-                if !tags.isEmpty {
-                    Section {
-                        Button {
-                            Task {
-                                await model.scheduleTestAlarm()
-                                dismiss()
-                            }
-                        } label: {
-                            Label("Fai una sveglia di prova", systemImage: "play.circle")
-                        }
-                    } footer: {
-                        Text("Suona tra 10 secondi: vai al tag e spegnila.")
-                    }
                 }
 
                 BlocksSection()
