@@ -55,6 +55,8 @@ struct SettingsView: View {
                     }
                 }
 
+                BlocksSection()
+
                 Section("Come funziona") {
                     rule("nosign", "Niente posticipo", "Non c'è un tasto per rimandarla.")
                     rule("arrow.clockwise", "Se la zittisci, ricomincia", "Il tasto Ferma o i tasti del volume la fermano per un minuto, poi suona di nuovo.")

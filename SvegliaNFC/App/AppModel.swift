@@ -34,6 +34,8 @@ final class AppModel {
     let scheduler = AlarmScheduler()
     /// Sleep tracking: the "Buonanotte" session and its nights.
     let sleep: SleepTracker
+    /// App blocks with Screen Time (see `Blocks/`).
+    let blocks = BlockController()
     private let scanner = TagScanner()
 
     /// Start of the alarm that is ringing right now (its chain is running), if any.
@@ -97,6 +99,7 @@ final class AppModel {
         }
         save()
         updateRinging(now: now)
+        blocks.refresh(now: now)
     }
 
     func updateRinging(now: Date = .now) {
