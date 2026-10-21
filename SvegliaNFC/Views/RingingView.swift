@@ -1,3 +1,4 @@
+import SvegliaCore
 import SwiftUI
 
 /// Full screen while an alarm rings: one thing to do, "go to the tag". After the scan, the reward.
@@ -22,6 +23,9 @@ struct RingingView: View {
             if let wake = model.lastWake {
                 success(wake)
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
+            } else if let difficulty = model.ringingMission {
+                mission(difficulty)
+                    .transition(.opacity)
             } else {
                 ringing
                     .transition(.opacity)
@@ -33,6 +37,8 @@ struct RingingView: View {
         .task(id: ScanRequest.shared.isPending) {
             guard ScanRequest.shared.isPending else { return }
             ScanRequest.shared.isPending = false
+            // The system alarm's "Scansiona" button: with a mission there is nothing to scan.
+            guard model.ringingMission == nil else { return }
             await scan()
         }
         .onChange(of: model.ringingStart) { _, start in
@@ -73,6 +79,32 @@ struct RingingView: View {
             }
             .buttonStyle(.primary)
             .disabled(isScanning)
+            Text("Puoi zittirla, ma ricomincia dopo un minuto.")
+                .font(.footnote)
+                .foregroundStyle(Theme.muted)
+        }
+        .padding(24)
+    }
+
+    /// The alarm is set to the math mission: solve it instead of walking to the tag.
+    private func mission(_ difficulty: MissionDifficulty) -> some View {
+        VStack(spacing: 16) {
+            TimelineView(.everyMinute) { timeline in
+                Text(Format.time(timeline.date))
+                    .font(.system(.title3, design: .rounded).weight(.medium))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.muted)
+            }
+            Text("Alzati.")
+                .font(.system(size: 44, weight: .bold, design: .rounded))
+            Spacer(minLength: 0)
+            MathMissionView(difficulty: difficulty) {
+                Task {
+                    if await model.completeMission() == .unlocked { model.dismissRingingScreen() }
+                }
+            }
+            .id(model.ringingStart)
+            Spacer(minLength: 0)
             Text("Puoi zittirla, ma ricomincia dopo un minuto.")
                 .font(.footnote)
                 .foregroundStyle(Theme.muted)

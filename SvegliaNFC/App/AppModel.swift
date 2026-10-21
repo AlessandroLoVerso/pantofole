@@ -133,15 +133,16 @@ final class AppModel {
             return Self.outcome(for: error)
         }
         guard paired.contains(where: { $0.serial == reading.serial }) else { return .wrongTag }
-        return await acceptScan(at: .now)
+        return await completeWake(at: .now)
     }
 
     /// The app was opened by touching one of our tags (the link written on it).
     func handle(url: URL) async {
         guard let token = AppConfig.tagLink?.token(from: url),
-              tags.contains(where: { $0.linkToken == token })
+              tags.contains(where: { $0.linkToken == token }),
+              ringingMission == nil // an alarm set to the math mission is not stopped by the tag
         else { return }
-        _ = await acceptScan(at: .now)
+        _ = await completeWake(at: .now)
     }
 
     func pairNewTag() async -> PairOutcome {
@@ -168,7 +169,34 @@ final class AppModel {
         return .paired(tag)
     }
 
-    private func acceptScan(at now: Date) async -> ScanOutcome {
+    // MARK: - Missions
+
+    /// The math mission that stops the alarm ringing now, or nil when it is stopped with the tag.
+    ///
+    /// Without a paired tag every alarm uses the mission, so it can always be stopped.
+    /// The trial alarm uses the mission only when no tag is paired.
+    func ringingMission(now: Date = .now) -> MissionDifficulty? {
+        guard let start = ringingStart else { return nil }
+        let item = alarms.first {
+            $0.isEnabled
+                && Occurrences.active(rule: $0.rule, armedAt: $0.armedAt, now: now, chain: AppConfig.chain) == start
+        }
+        if tags.isEmpty { return item?.difficulty ?? .easy }
+        guard let item, item.method == .math else { return nil }
+        return item.difficulty
+    }
+
+    var ringingMission: MissionDifficulty? { ringingMission() }
+
+    /// All the problems of a mission are solved: it counts exactly like a scan of the tag
+    /// (stops the ringing alarm, or unlocks edits when nothing rings).
+    @discardableResult
+    func completeMission() async -> ScanOutcome {
+        await completeWake(at: .now)
+    }
+
+    /// The shared ending of a scan or a mission: stop the chain, record the morning, unlock edits.
+    private func completeWake(at now: Date) async -> ScanOutcome {
         unlockedUntil = AppConfig.editLock.unlockedUntil(scanAt: now)
         guard let start = ringingStart else { return .unlocked }
         let wasTest = scheduler.stopChain(startedAt: start, items: alarms, now: now)

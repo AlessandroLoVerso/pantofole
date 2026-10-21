@@ -14,6 +14,10 @@ final class AlarmItem {
     /// Last time the alarm was switched on or changed: rings before this moment don't count.
     var armedAt = Date.now
     var createdAt = Date.now
+    /// Raw value of `DismissMethod`: how this alarm is switched off.
+    var dismissMethod = DismissMethod.tag.rawValue
+    /// Raw value of `MissionDifficulty`, used when `dismissMethod` is the math mission.
+    var missionDifficulty = MissionDifficulty.medium.rawValue
 
     init(hour: Int, minute: Int, weekdays: [Int], label: String = "") {
         self.hour = hour
@@ -23,6 +27,24 @@ final class AlarmItem {
     }
 
     var rule: AlarmRule { AlarmRule(hour: hour, minute: minute, weekdays: Set(weekdays)) }
+
+    var method: DismissMethod {
+        get { DismissMethod(rawValue: dismissMethod) ?? .tag }
+        set { dismissMethod = newValue.rawValue }
+    }
+
+    var difficulty: MissionDifficulty {
+        get { MissionDifficulty(rawValue: missionDifficulty) ?? .medium }
+        set { missionDifficulty = newValue.rawValue }
+    }
+}
+
+/// How a ringing alarm is switched off.
+enum DismissMethod: String, CaseIterable {
+    /// Walk to the paired NFC tag and scan it.
+    case tag
+    /// Solve a few math problems that get harder one by one.
+    case math
 }
 
 @Model

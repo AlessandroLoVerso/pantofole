@@ -10,6 +10,9 @@ struct AlarmEditorView: View {
     @State private var weekdays: Set<Int>
     @State private var label: String
     @State private var confirmsDelete = false
+    /// Nil for a new alarm until the user picks: the default depends on whether a tag is paired.
+    @State private var chosenMethod: DismissMethod?
+    @State private var difficulty: MissionDifficulty
 
     init(item: AlarmItem?) {
         self.item = item
@@ -18,6 +21,15 @@ struct AlarmEditorView: View {
         _time = State(initialValue: Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: .now) ?? .now)
         _weekdays = State(initialValue: Set(item?.weekdays ?? Array(2...6)))
         _label = State(initialValue: item?.label ?? "")
+        _chosenMethod = State(initialValue: item?.method)
+        _difficulty = State(initialValue: item?.difficulty ?? .medium)
+    }
+
+    private var method: Binding<DismissMethod> {
+        Binding(
+            get: { chosenMethod ?? (model.tags.isEmpty ? .math : .tag) },
+            set: { chosenMethod = $0 }
+        )
     }
 
     var body: some View {
@@ -35,6 +47,9 @@ struct AlarmEditorView: View {
                         DayPresets(selection: $weekdays)
                     }
                     .card()
+
+                    DismissMethodSection(method: method, difficulty: $difficulty, hasTag: !model.tags.isEmpty)
+                        .card()
 
                     TextField("Nome (facoltativo)", text: $label)
                         .textInputAutocapitalization(.sentences)
@@ -81,7 +96,11 @@ struct AlarmEditorView: View {
     private var summary: String {
         let rule = AlarmRule(hour: components.hour, minute: components.minute, weekdays: weekdays)
         guard let next = Occurrences.upcoming(rule: rule, armedAt: .now, now: .now, count: 1).first else { return "" }
-        return String(localized: "Suonerà \(Format.day(of: next).lowercased()) alle \(Format.time(next)), \(Format.countdown(to: next, from: .now)). Niente posticipo: per spegnerla serve il tag.")
+        let when = String(localized: "Suonerà \(Format.day(of: next).lowercased()) alle \(Format.time(next)), \(Format.countdown(to: next, from: .now)).")
+        let how = method.wrappedValue == .tag && !model.tags.isEmpty
+            ? String(localized: "Niente posticipo: per spegnerla serve il tag.")
+            : String(localized: "Niente posticipo: per spegnerla serve la missione.")
+        return "\(when) \(how)"
     }
 
     private func save() {
@@ -94,9 +113,14 @@ struct AlarmEditorView: View {
             item.weekdays = days
             item.label = trimmed
             item.isEnabled = true
+            item.method = method.wrappedValue
+            item.difficulty = difficulty
             Task { await model.commitChanges(to: item) }
         } else {
-            Task { await model.add(AlarmItem(hour: hour, minute: minute, weekdays: days, label: trimmed)) }
+            let newItem = AlarmItem(hour: hour, minute: minute, weekdays: days, label: trimmed)
+            newItem.method = method.wrappedValue
+            newItem.difficulty = difficulty
+            Task { await model.add(newItem) }
         }
         dismiss()
     }

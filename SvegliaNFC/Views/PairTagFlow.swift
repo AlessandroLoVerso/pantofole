@@ -1,3 +1,4 @@
+import SvegliaCore
 import SwiftUI
 
 /// Pair a tag, then say where it will live. Used in onboarding and in Settings.
@@ -144,6 +145,39 @@ struct UnlockSheet: View {
     @State private var isScanning = false
 
     var body: some View {
+        if model.tags.isEmpty {
+            missionUnlock
+        } else {
+            tagUnlock
+        }
+    }
+
+    /// Without a tag, a math mission proves you are awake enough to change the alarm.
+    private var missionUnlock: some View {
+        VStack(spacing: 14) {
+            Text("Modifica bloccata")
+                .font(.system(.title2, design: .rounded).weight(.bold))
+                .padding(.top, 24)
+            Text("Mancano meno di 8 ore alla sveglia. Per cambiarla risolvi questi calcoli: da svegli è un attimo.")
+                .font(.callout)
+                .foregroundStyle(Theme.muted)
+                .multilineTextAlignment(.center)
+            MathMissionView(difficulty: .medium) {
+                Task {
+                    await model.completeMission()
+                    dismiss()
+                    onUnlocked()
+                }
+            }
+            Button("Annulla") { dismiss() }
+                .foregroundStyle(Theme.muted)
+        }
+        .padding(24)
+        .presentationDetents([.large])
+        .presentationBackground(Theme.night)
+    }
+
+    private var tagUnlock: some View {
         VStack(spacing: 18) {
             Image(systemName: "lock.fill")
                 .font(.system(size: 44))
