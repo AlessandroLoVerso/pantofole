@@ -173,8 +173,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A0FB10C0000000000000004 /* BlockMonitor */,
 				5A0FB10C0000000000000003 /* BlockShared */,
+				5A0FB10C0000000000000004 /* BlockMonitor */,
 			);
 			name = BlockMonitor;
 			packageProductDependencies = (
@@ -197,8 +197,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				5A0FB10C0000000000000005 /* BlockShield */,
 				5A0FB10C0000000000000003 /* BlockShared */,
+				5A0FB10C0000000000000005 /* BlockShield */,
 			);
 			name = BlockShield;
 			packageProductDependencies = (
