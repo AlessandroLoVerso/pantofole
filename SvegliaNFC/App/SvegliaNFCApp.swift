@@ -36,7 +36,12 @@ struct RootView: View {
         .fullScreenCover(isPresented: $model.isRingingScreenPresented) {
             RingingView()
         }
-        .task { await model.refresh() }
+        .task {
+            await model.refresh()
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-ringTest") { await model.scheduleTestAlarm() }
+            #endif
+        }
         .task { await model.watchAlarms() }
         .task { await model.scheduler.observeAuthorization() }
         .task { await model.tick() }

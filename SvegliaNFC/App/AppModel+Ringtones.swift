@@ -22,10 +22,22 @@ extension AppModel {
         await refresh()
     }
 
-    /// The sound of the trial alarm: the one of the next alarm, or the default ringtone.
+    /// Once: alarms created when the built-in "Pulsar" was the default move to the iPhone alarm sound,
+    /// now the default.
+    func switchExistingAlarmsToIPhoneSound() {
+        let key = "alarmsSwitchedToIPhoneSound"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        for item in alarms {
+            item.soundName = RingtoneCatalog.systemSoundName
+        }
+        save()
+        UserDefaults.standard.set(true, forKey: key)
+    }
+
+    /// The sound of the trial alarm: the one of the next alarm, or the iPhone alarm sound.
     var testAlarmSound: String {
         nextAlarm()?.item.soundName
             ?? alarms.first(where: \.isEnabled)?.soundName
-            ?? RingtoneCatalog.defaultSoundName
+            ?? RingtoneCatalog.systemSoundName
     }
 }

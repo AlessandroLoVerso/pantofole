@@ -80,9 +80,11 @@ struct SleepHistoryView: View {
                     .accessibilityLabel("Dove mettere l'iPhone")
             }
             #if DEBUG
-            ToolbarItem(placement: .topBarTrailing) {
-                Button { SleepSampleData.seed(into: context) } label: { Image(systemName: "wand.and.stars") }
-                    .accessibilityLabel("Dati di esempio")
+            if !ProcessInfo.processInfo.arguments.contains("-seedDemo") {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { SleepSampleData.seed(into: context) } label: { Image(systemName: "wand.and.stars") }
+                        .accessibilityLabel("Dati di esempio")
+                }
             }
             #endif
         }

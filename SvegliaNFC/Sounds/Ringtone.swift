@@ -63,7 +63,7 @@ enum RingtoneCatalog {
     static func displayName(for soundName: String) -> String {
         if let ringtone = builtIn(named: soundName) { return ringtone.name }
         if let song = CustomSongLibrary.shared.song(named: soundName), url(for: soundName) != nil { return song.title }
-        return String(localized: "Standard di iOS")
+        return String(localized: "Standard dell'iPhone")
     }
 
     /// Where the sound file is, or nil for the iOS sound and for songs that were deleted.

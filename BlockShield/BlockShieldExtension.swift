@@ -32,7 +32,7 @@ final class BlockShieldExtension: ShieldConfigurationDataSource {
             let time = end.formatted(date: .omitted, time: .shortened)
             subtitle = String(localized: "Si sblocca alle \(time) o con il tuo tag.")
         } else {
-            subtitle = String(localized: "Si sblocca con il tuo tag, da Sveglia NFC.")
+            subtitle = String(localized: "Si sblocca con il tuo tag, da Pantofole.")
         }
         let symbol = UIImage.SymbolConfiguration(pointSize: 56, weight: .semibold)
         let icon = UIImage(systemName: "moon.zzz.fill", withConfiguration: symbol)?

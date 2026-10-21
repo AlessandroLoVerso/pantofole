@@ -2,18 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NFCReaderUsageDescription</key>
+	<string>Serve per leggere il tuo tag: è l'unico modo per spegnere la sveglia.</string>
 	<key>NSAlarmKitUsageDescription</key>
 	<string>Serve per far suonare la sveglia anche con l'iPhone bloccato, in silenzioso o in Full immersion.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Serve solo se vuoi svegliarti con un brano della tua libreria Musica. Il brano resta sul telefono.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Serve per ascoltare il tuo sonno dal comodino. L'audio viene analizzato sull'iPhone e mai registrato, salvato o inviato.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
 	</array>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>Serve solo se vuoi svegliarti con un brano della tua libreria Musica. Il brano resta sul telefono.</string>
-	<key>NFCReaderUsageDescription</key>
-	<string>Serve per leggere il tuo tag: è l'unico modo per spegnere la sveglia.</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
 		<string>D2760000850101</string>

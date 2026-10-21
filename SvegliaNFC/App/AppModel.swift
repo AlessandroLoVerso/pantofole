@@ -56,6 +56,10 @@ final class AppModel {
             fatalError("Impossibile aprire il database: \(error)")
         }
         sleep = SleepTracker(container: container)
+        switchExistingAlarmsToIPhoneSound()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-seedDemo") { seedDemoData() }
+        #endif
     }
 
     // MARK: - Reading state

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genera le suonerie originali di Sveglia NFC.
+"""Genera le suonerie originali di Pantofole.
 
 Ogni suono è sintetizzato da zero (sintesi additiva, modi smorzati, FM, rumore filtrato):
 nessun campione, nessun audio di terzi. Solo libreria standard di Python 3.

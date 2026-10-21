@@ -61,7 +61,7 @@ struct BlocksSection: View {
         } header: {
             Text("Blocco app")
         } footer: {
-            Text("Durante la fascia oraria le app scelte restano in pausa. Per sbloccarle prima serve il tag. Ci pensa Tempo di utilizzo di iOS: Sveglia NFC non sa quali app hai scelto.")
+            Text("Durante la fascia oraria le app scelte restano in pausa. Per sbloccarle prima serve il tag. Ci pensa Tempo di utilizzo di iOS: Pantofole non sa quali app hai scelto.")
         }
         .sheet(isPresented: $showsIntro, onDismiss: {
             if let draft = afterIntro {
@@ -352,7 +352,7 @@ struct BlockIntroSheet: View {
                         .multilineTextAlignment(.center)
                     VStack(alignment: .leading, spacing: 18) {
                         point("apps.iphone", "Scegli app e orari", "Per esempio i social dalle 23 alle 7: niente scroll a letto, niente scroll appena sveglio.")
-                        point("hourglass", "Ci pensa iOS", "Tempo di utilizzo le mette in pausa e le libera da solo. Sveglia NFC non sa quali app hai scelto.")
+                        point("hourglass", "Ci pensa iOS", "Tempo di utilizzo le mette in pausa e le libera da solo. Pantofole non sa quali app hai scelto.")
                         point("wave.3.right", "Sblocco solo col tag", "Se ti servono prima, scansiona il tag: devi alzarti per farlo.")
                     }
                     .card()

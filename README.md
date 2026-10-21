@@ -1,4 +1,4 @@
-# Sveglia NFC
+# Pantofole – Sveglia NFC
 
 **La sveglia che per spegnerla devi alzarti.**
 Suona finché non appoggi l'iPhone su un tag NFC lontano dal letto (o risolvi una missione di matematica). Niente posticipo, niente account, nessun dato che lascia il telefono.
@@ -100,6 +100,6 @@ Segnalazioni e pull request sono benvenute. Prima di inviare: `swift test` nel p
 
 ## English summary
 
-**Sveglia NFC** is an iPhone alarm clock you can only switch off by getting out of bed: it keeps ringing until you tap your phone on an NFC tag placed in another room (or solve a math mission). No snooze; silencing it with the Stop button or the volume keys only buys you a minute, and after 30 minutes it stops on its own as an emergency exit. It also includes 32 original ringtones, on-device sleep tracking (audio is never recorded or uploaded), a daily score, and Screen Time app blocking that only the tag can lift early. No accounts, no servers.
+**Pantofole** is an iPhone alarm clock you can only switch off by getting out of bed: it keeps ringing until you tap your phone on an NFC tag placed in another room (or solve a math mission). No snooze; silencing it with the Stop button or the volume keys only buys you a minute, and after 30 minutes it stops on its own as an emergency exit. It also includes 32 original ringtones, on-device sleep tracking (audio is never recorded or uploaded), a daily score, and Screen Time app blocking that only the tag can lift early. No accounts, no servers.
 
 Built with SwiftUI, SwiftData, AlarmKit, Core NFC, SoundAnalysis and the Screen Time APIs; requires iOS 26.1. The `hardware/` folder contains a 3D-printable puck that seals the NFC tag inside. Licensed under MIT.

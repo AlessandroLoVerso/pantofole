@@ -18,6 +18,11 @@ struct RingtonePickerView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
+                Section {
+                    row(id: RingtoneCatalog.systemSoundName, title: String(localized: "Standard dell'iPhone"))
+                } footer: {
+                    Text("Il suono di sveglia dell'iPhone, consigliato: suona sempre, anche in silenzioso. Le suonerie qui sotto si sentono quando la sveglia suona con l'app aperta.")
+                }
                 if !library.songs.isEmpty { songsSection }
                 ForEach(RingtoneFamily.allCases) { family in
                     Section {
@@ -31,11 +36,6 @@ struct RingtonePickerView: View {
                     }
                 }
                 if library.songs.isEmpty { songsSection }
-                Section {
-                    row(id: RingtoneCatalog.systemSoundName, title: String(localized: "Standard di iOS"))
-                } footer: {
-                    Text("Il suono delle sveglie di sistema. Non si può ascoltare in anteprima.")
-                }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.night.ignoresSafeArea())
@@ -163,9 +163,9 @@ struct RingtonePickerView: View {
 
     private func delete(_ song: CustomSong) {
         if previewer.playingID == song.fileName { previewer.stop() }
-        if selection == song.fileName { selection = RingtoneCatalog.defaultSoundName }
+        if selection == song.fileName { selection = RingtoneCatalog.systemSoundName }
         library.delete(song)
-        Task { await model.replaceSound(song.fileName, with: RingtoneCatalog.defaultSoundName) }
+        Task { await model.replaceSound(song.fileName, with: RingtoneCatalog.systemSoundName) }
     }
 
     private func openMusicLibrary() {
@@ -218,7 +218,7 @@ private struct Notice: Identifiable {
 
     static let musicDenied = Notice(
         title: String(localized: "Accesso a Musica negato"),
-        message: String(localized: "Per scegliere un brano dalla libreria, consenti l'accesso a Musica in Impostazioni > Sveglia NFC. Puoi sempre importare un file da File.")
+        message: String(localized: "Per scegliere un brano dalla libreria, consenti l'accesso a Musica in Impostazioni > Pantofole. Puoi sempre importare un file da File.")
     )
 }
 
