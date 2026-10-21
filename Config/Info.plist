@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Serve per far suonare la sveglia anche con l'iPhone bloccato, in silenzioso o in Full immersion.</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Serve per leggere il tuo tag: è l'unico modo per spegnere la sveglia.</string>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>D2760000850101</string>
+	</array>
+</dict>
+</plist>
