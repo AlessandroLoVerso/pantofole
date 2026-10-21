@@ -93,6 +93,10 @@ final class AppModel {
         && Occurrences.isFinished(rule: item.rule, armedAt: item.armedAt, now: now, chain: AppConfig.chain) {
             item.isEnabled = false
         }
+        // Onboarding normally asks for the permission; ask here too if an alarm exists without it.
+        if scheduler.isUndetermined, alarms.contains(where: \.isEnabled) {
+            _ = await scheduler.requestAuthorization()
+        }
         let missed = await scheduler.sync(enabled: alarms.filter(\.isEnabled), now: now)
         for start in missed {
             context.insert(WakeRecord(alarmStart: start, stoppedAt: nil))

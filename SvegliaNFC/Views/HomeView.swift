@@ -118,7 +118,7 @@ struct HomeView: View {
             NoticeCard(
                 icon: "wave.3.right",
                 title: "Abbina il tuo tag",
-                message: "È l'unico modo per spegnere la sveglia. Senza, si ferma da sola dopo 30 minuti.",
+                message: "Con il tag devi alzarti per spegnerla. Finché non ce l'hai, la spegni risolvendo una missione di matematica.",
                 action: "Abbina ora"
             ) { showsPairing = true }
         }
@@ -300,7 +300,7 @@ private struct EmptyAlarmCard: View {
             PuckIllustration(size: 90)
             Text("Nessuna sveglia")
                 .font(.system(.title2, design: .rounded).weight(.bold))
-            Text("Imposta l'ora: per spegnerla dovrai alzarti e raggiungere il tuo tag.")
+            Text("Imposta l'ora. Niente posticipo: per spegnerla dovrai alzarti.")
                 .font(.callout)
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)

@@ -21,6 +21,7 @@ final class AlarmScheduler {
     private(set) var lastError: String?
 
     var isDenied: Bool { authorization == .denied }
+    var isUndetermined: Bool { authorization == .notDetermined }
 
     private let manager = AlarmManager.shared
     private let chain = AppConfig.chain

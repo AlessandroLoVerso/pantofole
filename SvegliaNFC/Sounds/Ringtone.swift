@@ -77,6 +77,12 @@ enum RingtoneCatalog {
     /// The sound handed to AlarmKit. A missing file falls back to the iOS sound, so an alarm never
     /// ends up silent.
     static func alertSound(for soundName: String) -> AlertConfiguration.AlertSound {
-        url(for: soundName) == nil ? .default : .named(soundName)
+        #if targetEnvironment(simulator)
+        // The iOS 26.2 Simulator's SpringBoard crashes (ToneLibrary: -[AVAudioSession reporterID]
+        // unrecognized selector) when an AlarmKit alarm plays a named sound. Real devices are unaffected.
+        return .default
+        #else
+        return url(for: soundName) == nil ? .default : .named(soundName)
+        #endif
     }
 }
