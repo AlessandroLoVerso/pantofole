@@ -73,31 +73,41 @@ final class AlarmScheduler {
 
     /// Registers what is missing, cancels what is no longer wanted, and returns the starts of chains
     /// that ran out without a scan (mornings ended by the emergency exit).
+    /// Not reentrant: `AppModel.refresh` makes sure only one runs at a time.
     func sync(enabled items: [AlarmItem], now: Date) async -> [Date] {
         guard authorization == .authorized else { return [] }
         lastError = nil
+        stopStaleAlerts(items: items, now: now)
         let byID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
-        let missed = dropFinishedAndUnwantedChains(items: byID, now: now)
+        let wanted = wantedChains(items: items, now: now)
+        let missed = dropFinishedAndUnwantedChains(wanted: wanted, now: now)
         await syncHeads(items: byID)
-        for item in items.sorted(by: { nextStart($0, now) < nextStart($1, now) }) {
-            for start in wantedStarts(for: item, now: now)
-            where !ledger.chains.contains(where: { $0.itemID == item.id && $0.start == start }) {
-                let rings = chain.remainingRings(from: start, after: now).filter { $0 > start }
-                await scheduleChain(
-                    itemID: item.id, start: start, end: chain.end(of: start), rings: rings, sound: item.soundName
-                )
-            }
+        for (item, start) in wanted
+        where !ledger.chains.contains(where: { $0.itemID == item.id && $0.start == start }) {
+            let rings = chain.remainingRings(from: start, after: now).filter { $0 > start }
+            await scheduleChain(
+                itemID: item.id, start: start, end: chain.end(of: start), rings: rings, sound: item.soundName
+            )
         }
         return missed
     }
 
     /// A short trial chain, a few seconds from now, so the user walks to the tag once while setting up.
-    func scheduleTest(now: Date, sound: String) async {
+    /// Returns when it will ring.
+    @discardableResult
+    func scheduleTest(now: Date, sound: String) async -> Date {
         let start = now.addingTimeInterval(AppConfig.testDelay)
         let rings = (0..<AppConfig.testRings).map { start.addingTimeInterval(Double($0) * chain.interval) }
         await scheduleChain(
             itemID: nil, start: start, end: rings.last!.addingTimeInterval(chain.interval), rings: rings, sound: sound
         )
+        return start
+    }
+
+    func cancelTests() {
+        for entry in ledger.chains where entry.itemID == nil {
+            cancel(entry)
+        }
     }
 
     // MARK: - Ringing
@@ -113,8 +123,17 @@ final class AlarmScheduler {
             else { return nil }
             return start
         }
-        if let earliest = starts.min() { return earliest }
-        return alertingIDs.isEmpty ? nil : now
+        return starts.min()
+    }
+
+    /// Silences system alerts that belong to no running chain: the chain is over (emergency exit after
+    /// 30 minutes) or the alarm was removed. AlarmKit keeps alerting until someone stops it.
+    private func stopStaleAlerts(items: [AlarmItem], now: Date) {
+        guard ringingStart(items: items, now: now) == nil else { return }
+        let alerting = ((try? manager.alarms) ?? []).filter { $0.state == .alerting }
+        for alarm in alerting {
+            try? manager.stop(id: alarm.id)
+        }
     }
 
     /// The tag was scanned: silence what is ringing and cancel the rest of the chain.
@@ -138,8 +157,11 @@ final class AlarmScheduler {
 
     // MARK: - Private
 
-    private func nextStart(_ item: AlarmItem, _ now: Date) -> Date {
-        Occurrences.upcoming(rule: item.rule, armedAt: item.armedAt, now: now, count: 1).first ?? .distantFuture
+    /// The chains to keep registered: the running ones and the next mornings, earliest first, at most
+    /// `AppConfig.maxChains` in all.
+    private func wantedChains(items: [AlarmItem], now: Date) -> [(item: AlarmItem, start: Date)] {
+        let all = items.flatMap { item in wantedStarts(for: item, now: now).map { (item: item, start: $0) } }
+        return Array(all.sorted { $0.start < $1.start }.prefix(AppConfig.maxChains))
     }
 
     private func wantedStarts(for item: AlarmItem, now: Date) -> [Date] {
@@ -152,18 +174,21 @@ final class AlarmScheduler {
         return starts.filter { ledger.stopped[item.id] != $0 }
     }
 
-    private func dropFinishedAndUnwantedChains(items: [UUID: AlarmItem], now: Date) -> [Date] {
+    private func dropFinishedAndUnwantedChains(wanted: [(item: AlarmItem, start: Date)], now: Date) -> [Date] {
         var missed: [Date] = []
+        var kept: Set<String> = []
         for entry in ledger.chains {
             if now >= entry.end {
                 if entry.itemID != nil { missed.append(entry.start) }
                 cancel(entry)
             } else if let itemID = entry.itemID {
                 // A chain registered with another sound is dropped here and registered again by `sync`.
-                let stillWanted = items[itemID].map {
-                    wantedStarts(for: $0, now: now).contains(entry.start) && entry.soundName == $0.soundName
-                } ?? false
-                if !stillWanted { cancel(entry) }
+                let stillWanted = wanted.contains {
+                    $0.item.id == itemID && $0.start == entry.start && $0.item.soundName == entry.soundName
+                }
+                // Only one chain per morning: a duplicate would ring twice and waste AlarmKit's slots.
+                let key = "\(itemID)-\(entry.start.timeIntervalSinceReferenceDate)"
+                if !stillWanted || !kept.insert(key).inserted { cancel(entry) }
             }
         }
         return missed
@@ -285,7 +310,8 @@ nonisolated private struct Ledger: Codable {
     var configurationVersion: Int?
 
     /// 2: the system alarm sound instead of named ringtones (silent on iOS 26.1).
-    static let currentConfigurationVersion = 2
+    /// 3: start clean after overlapping syncs had registered some chains twice.
+    static let currentConfigurationVersion = 3
 
     private static let key = "alarmLedger"
 

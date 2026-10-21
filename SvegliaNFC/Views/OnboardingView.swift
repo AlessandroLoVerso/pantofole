@@ -101,10 +101,8 @@ struct OnboardingView: View {
                 }
                 if hasTag {
                     Button("Fai una prova: suona tra 10 secondi") {
-                        Task {
-                            await model.scheduleTestAlarm()
-                            onFinish()
-                        }
+                        onFinish()
+                        Task { await model.scheduleTestAlarm() }
                     }
                     .buttonStyle(.primary)
                     Button("Salta la prova", action: onFinish)

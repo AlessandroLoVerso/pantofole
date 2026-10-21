@@ -34,10 +34,17 @@ extension AppModel {
         UserDefaults.standard.set(true, forKey: key)
     }
 
-    /// The sound of the trial alarm: the one of the next alarm, or the iPhone alarm sound.
+    /// The sound of the trial alarm: the one chosen in Settings.
     var testAlarmSound: String {
-        nextAlarm()?.item.soundName
-            ?? alarms.first(where: \.isEnabled)?.soundName
-            ?? RingtoneCatalog.systemSoundName
+        RingtoneCatalog.preferredSoundName
+    }
+
+    /// The sound chosen in Settings applies to every alarm and to the new ones.
+    func setSoundForAllAlarms(_ soundName: String) async {
+        RingtoneCatalog.preferredSoundName = soundName
+        for item in alarms {
+            item.soundName = soundName
+        }
+        await refresh()
     }
 }

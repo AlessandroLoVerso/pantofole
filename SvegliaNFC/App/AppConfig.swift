@@ -13,6 +13,9 @@ enum AppConfig {
 
     /// How many upcoming mornings get their whole chain registered with iOS in advance.
     static let chainsAhead = 2
+    /// Upper bound on chains registered at once across all alarms (about 30 system alarms each),
+    /// so many alarms never push the app past AlarmKit's limit.
+    static let maxChains = 3
 
     /// The trial alarm offered after pairing a tag: rings after a few seconds, three times.
     static let testDelay: TimeInterval = 10

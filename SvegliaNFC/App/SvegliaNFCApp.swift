@@ -32,7 +32,14 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
+        .overlay {
+            if let start = model.testAlarmStart, model.ringingStart == nil {
+                TestCountdownView(start: start)
+                    .transition(.opacity)
+            }
+        }
         .animation(.smooth, value: onboardingCompleted)
+        .animation(.smooth, value: model.testAlarmStart)
         .fullScreenCover(isPresented: $model.isRingingScreenPresented) {
             RingingView()
         }

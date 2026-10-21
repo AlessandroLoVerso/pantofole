@@ -22,7 +22,7 @@ struct AlarmEditorView: View {
         _time = State(initialValue: Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: .now) ?? .now)
         _weekdays = State(initialValue: Set(item?.weekdays ?? Array(2...6)))
         _label = State(initialValue: item?.label ?? "")
-        _soundName = State(initialValue: item?.soundName ?? RingtoneCatalog.systemSoundName)
+        _soundName = State(initialValue: item?.soundName ?? RingtoneCatalog.preferredSoundName)
         _chosenMethod = State(initialValue: item?.method)
         _difficulty = State(initialValue: item?.difficulty ?? .medium)
     }

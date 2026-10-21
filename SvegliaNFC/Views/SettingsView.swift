@@ -9,24 +9,54 @@ struct SettingsView: View {
     @State private var showsPairing = false
     @State private var tagToRemove: PairedTag?
     @State private var unlockingRemoval: PairedTag?
+    @State private var soundChoice = RingtoneCatalog.preferredSoundName
+
+    /// The sound for every alarm: changing it updates all of them.
+    private var preferredSound: Binding<String> {
+        Binding(
+            get: { soundChoice },
+            set: { name in
+                soundChoice = name
+                Task { await model.setSoundForAllAlarms(name) }
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     Button {
-                        Task {
-                            await model.scheduleTestAlarm()
-                            dismiss()
-                        }
+                        dismiss()
+                        Task { await model.scheduleTestAlarm() }
                     } label: {
                         Label("Fai una sveglia di prova", systemImage: "alarm.waves.left.and.right.fill")
                             .font(.headline)
                     }
+                    NavigationLink {
+                        RingtonePickerView(selection: preferredSound)
+                    } label: {
+                        HStack {
+                            Label("Suono della sveglia", systemImage: "speaker.wave.3.fill")
+                            Spacer()
+                            Text(RingtoneCatalog.displayName(for: preferredSound.wrappedValue))
+                                .foregroundStyle(Theme.muted)
+                                .lineLimit(1)
+                        }
+                    }
                 } footer: {
                     Text(tags.isEmpty
-                        ? "Suona tra 10 secondi, anche col silenzioso: spegnila risolvendo la missione."
-                        : "Suona tra 10 secondi, anche col silenzioso: vai al tag e spegnila.")
+                        ? "La prova suona tra 10 secondi, anche col silenzioso: spegnila risolvendo la missione. Il suono scelto vale per tutte le sveglie."
+                        : "La prova suona tra 10 secondi, anche col silenzioso: vai al tag e spegnila. Il suono scelto vale per tutte le sveglie.")
+                }
+
+                Section {
+                    rule("speaker.wave.2.fill", "Volume di \"Suoneria e avvisi\"", "La sveglia di iOS usa questo volume: controllalo in Impostazioni di iOS → Suoni e feedback aptico.")
+                    rule("faceid", "Funzioni basate sull'attenzione", "Se guardi l'iPhone mentre suona, iOS abbassa il volume della sveglia. Per una prova fedele, blocca il telefono e appoggialo.")
+                } header: {
+                    Text("Perché si senta sempre")
+                } footer: {
+                    Text("Quando la sveglia suona con l'app aperta, Pantofole aggiunge un suono suo al volume dei media.")
                 }
 
                 Section {

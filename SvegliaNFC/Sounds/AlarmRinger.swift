@@ -10,8 +10,9 @@ final class AlarmRinger {
     func start(soundName: String) {
         guard player == nil || self.soundName != soundName else { return }
         stop()
-        // The iPhone alarm sound is played by AlarmKit itself: nothing to add for it.
-        guard let file = RingtoneCatalog.url(for: soundName) else { return }
+        let file = RingtoneCatalog.url(for: soundName)
+            ?? RingtoneCatalog.url(for: RingtoneCatalog.companionOfSystemSound)
+        guard let file else { return }
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default)

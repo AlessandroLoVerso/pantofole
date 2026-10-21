@@ -47,6 +47,17 @@ enum RingtoneCatalog {
     /// `AlarmItem.soundName` value meaning "the standard iOS alarm sound".
     static let systemSoundName = ""
 
+    /// Played by the app while an alarm with the iPhone sound rings and the app is open. iOS lowers the
+    /// volume of its alarm sound while the user looks at the phone (Attention Aware Features), so the
+    /// app adds a sound of its own at media volume: the alarm is always heard.
+    static let companionOfSystemSound = "suoneria-sveglia-antica.caf"
+
+    /// The sound chosen in Settings, used by new alarms and by the trial alarm.
+    static var preferredSoundName: String {
+        get { UserDefaults.standard.string(forKey: "preferredSoundName") ?? systemSoundName }
+        set { UserDefaults.standard.set(newValue, forKey: "preferredSoundName") }
+    }
+
     /// Longest clip AlarmKit plays: Apple asks for sounds shorter than 30 seconds, otherwise the
     /// system falls back to the default sound.
     static let maxClipDuration: TimeInterval = 28

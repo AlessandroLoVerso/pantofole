@@ -46,6 +46,10 @@ final class AppModel {
     var isRingingScreenPresented = false
     private(set) var lastWake: WakeSummary?
     private(set) var unlockedUntil: Date?
+    /// When the trial alarm will ring, while its countdown is on screen.
+    private(set) var testAlarmStart: Date?
+    @ObservationIgnored private var isRefreshing = false
+    @ObservationIgnored private var refreshRequested = false
 
     private var context: ModelContext { container.mainContext }
 
@@ -94,7 +98,25 @@ final class AppModel {
 
     // MARK: - Lifecycle
 
+    /// Several things ask for a refresh at once (launch, returning to the foreground, an edit). They
+    /// must not overlap: two syncs running together would each register the same chain with iOS.
+    /// A request that arrives during a refresh runs once more right after it, with fresh data.
     func refresh(now: Date = .now) async {
+        if isRefreshing {
+            refreshRequested = true
+            return
+        }
+        isRefreshing = true
+        defer { isRefreshing = false }
+        var date = now
+        repeat {
+            refreshRequested = false
+            await performRefresh(now: date)
+            date = .now
+        } while refreshRequested
+    }
+
+    private func performRefresh(now: Date) async {
         for item in alarms where item.isEnabled
         && Occurrences.isFinished(rule: item.rule, armedAt: item.armedAt, now: now, chain: AppConfig.chain) {
             item.isEnabled = false
@@ -114,6 +136,9 @@ final class AppModel {
 
     func updateRinging(now: Date = .now) {
         ringingStart = scheduler.ringingStart(items: alarms, now: now)
+        if let test = testAlarmStart, ringingStart != nil || now > test.addingTimeInterval(5) {
+            testAlarmStart = nil
+        }
         if let start = ringingStart {
             isRingingScreenPresented = true
             // The night is over: free the microphone session so the ringtone can play.
@@ -271,7 +296,17 @@ final class AppModel {
     }
 
     func scheduleTestAlarm() async {
-        await scheduler.scheduleTest(now: .now, sound: testAlarmSound)
+        let start = await scheduler.scheduleTest(now: .now, sound: testAlarmSound)
+        testAlarmStart = start
+        updateRinging()
+        // Show the ringing screen right on time instead of at the next tick.
+        try? await Task.sleep(for: .seconds(max(0, start.timeIntervalSinceNow) + 0.3))
+        updateRinging()
+    }
+
+    func cancelTestAlarm() {
+        scheduler.cancelTests()
+        testAlarmStart = nil
         updateRinging()
     }
 
