@@ -14,6 +14,8 @@ final class AlarmItem {
     /// Last time the alarm was switched on or changed: rings before this moment don't count.
     var armedAt = Date.now
     var createdAt = Date.now
+    /// Sound file the alarm rings with (see `RingtoneCatalog`); empty means the standard iOS sound.
+    var soundName = RingtoneCatalog.defaultSoundName
 
     init(hour: Int, minute: Int, weekdays: [Int], label: String = "") {
         self.hour = hour

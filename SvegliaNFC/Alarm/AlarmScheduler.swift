@@ -69,17 +69,21 @@ final class AlarmScheduler {
             for start in wantedStarts(for: item, now: now)
             where !ledger.chains.contains(where: { $0.itemID == item.id && $0.start == start }) {
                 let rings = chain.remainingRings(from: start, after: now).filter { $0 > start }
-                await scheduleChain(itemID: item.id, start: start, end: chain.end(of: start), rings: rings)
+                await scheduleChain(
+                    itemID: item.id, start: start, end: chain.end(of: start), rings: rings, sound: item.soundName
+                )
             }
         }
         return missed
     }
 
     /// A short trial chain, a few seconds from now, so the user walks to the tag once while setting up.
-    func scheduleTest(now: Date) async {
+    func scheduleTest(now: Date, sound: String) async {
         let start = now.addingTimeInterval(AppConfig.testDelay)
         let rings = (0..<AppConfig.testRings).map { start.addingTimeInterval(Double($0) * chain.interval) }
-        await scheduleChain(itemID: nil, start: start, end: rings.last!.addingTimeInterval(chain.interval), rings: rings)
+        await scheduleChain(
+            itemID: nil, start: start, end: rings.last!.addingTimeInterval(chain.interval), rings: rings, sound: sound
+        )
     }
 
     // MARK: - Ringing
@@ -141,7 +145,10 @@ final class AlarmScheduler {
                 if entry.itemID != nil { missed.append(entry.start) }
                 cancel(entry)
             } else if let itemID = entry.itemID {
-                let stillWanted = items[itemID].map { wantedStarts(for: $0, now: now).contains(entry.start) } ?? false
+                // A chain registered with another sound is dropped here and registered again by `sync`.
+                let stillWanted = items[itemID].map {
+                    wantedStarts(for: $0, now: now).contains(entry.start) && entry.soundName == $0.soundName
+                } ?? false
                 if !stillWanted { cancel(entry) }
             }
         }
@@ -153,7 +160,7 @@ final class AlarmScheduler {
         for (itemID, head) in ledger.heads {
             // A one-off head disappears once it has rung: that is expected, not a reason to schedule it again.
             let lost = head.rule.repeats && !live.contains(head.alarmID)
-            if items[itemID]?.rule != head.rule || lost {
+            if items[itemID]?.rule != head.rule || items[itemID]?.soundName != head.soundName || lost {
                 try? manager.cancel(id: head.alarmID)
                 ledger.heads[itemID] = nil
             }
@@ -161,27 +168,29 @@ final class AlarmScheduler {
         for item in items.values where ledger.heads[item.id] == nil {
             let alarmID = UUID()
             do {
-                _ = try await manager.schedule(id: alarmID, configuration: configuration(relativeSchedule(item.rule)))
-                ledger.heads[item.id] = Ledger.Head(alarmID: alarmID, rule: item.rule)
+                _ = try await manager.schedule(
+                    id: alarmID, configuration: configuration(relativeSchedule(item.rule), sound: item.soundName)
+                )
+                ledger.heads[item.id] = Ledger.Head(alarmID: alarmID, rule: item.rule, sound: item.soundName)
             } catch {
                 lastError = message(for: error)
             }
         }
     }
 
-    private func scheduleChain(itemID: UUID?, start: Date, end: Date, rings: [Date]) async {
+    private func scheduleChain(itemID: UUID?, start: Date, end: Date, rings: [Date], sound: String) async {
         var alarmIDs: [Alarm.ID] = []
         for ring in rings {
             let alarmID = UUID()
             do {
-                _ = try await manager.schedule(id: alarmID, configuration: configuration(.fixed(ring)))
+                _ = try await manager.schedule(id: alarmID, configuration: configuration(.fixed(ring), sound: sound))
                 alarmIDs.append(alarmID)
             } catch {
                 lastError = message(for: error)
                 break
             }
         }
-        ledger.chains.append(Ledger.Chain(itemID: itemID, start: start, end: end, alarmIDs: alarmIDs))
+        ledger.chains.append(Ledger.Chain(itemID: itemID, start: start, end: end, alarmIDs: alarmIDs, sound: sound))
     }
 
     private func cancel(_ entry: Ledger.Chain) {
@@ -191,7 +200,7 @@ final class AlarmScheduler {
         ledger.chains.removeAll { $0 == entry }
     }
 
-    private func configuration(_ schedule: Alarm.Schedule) -> AlarmManager.AlarmConfiguration<WakeMetadata> {
+    private func configuration(_ schedule: Alarm.Schedule, sound: String) -> AlarmManager.AlarmConfiguration<WakeMetadata> {
         let alert = AlarmPresentation.Alert(
             title: "Alzati e vai al tuo tag",
             secondaryButton: AlarmButton(text: "Scansiona", textColor: .white, systemImageName: "wave.3.right"),
@@ -201,7 +210,12 @@ final class AlarmScheduler {
             presentation: AlarmPresentation(alert: alert),
             tintColor: Theme.sunrise
         )
-        return .alarm(schedule: schedule, attributes: attributes, secondaryIntent: OpenScannerIntent())
+        return .alarm(
+            schedule: schedule,
+            attributes: attributes,
+            secondaryIntent: OpenScannerIntent(),
+            sound: RingtoneCatalog.alertSound(for: sound)
+        )
     }
 
     private func relativeSchedule(_ rule: AlarmRule) -> Alarm.Schedule {
@@ -229,6 +243,11 @@ nonisolated private struct Ledger: Codable {
     struct Head: Codable, Equatable {
         var alarmID: UUID
         var rule: AlarmRule
+        /// `AlarmItem.soundName` it was registered with. Optional so ledgers saved before sounds
+        /// existed still decode (nil = the iOS sound they were registered with).
+        var sound: String?
+
+        var soundName: String { sound ?? "" }
     }
 
     struct Chain: Codable, Equatable {
@@ -237,6 +256,10 @@ nonisolated private struct Ledger: Codable {
         var start: Date
         var end: Date
         var alarmIDs: [UUID]
+        /// Same as `Head.sound`.
+        var sound: String?
+
+        var soundName: String { sound ?? "" }
     }
 
     var heads: [UUID: Head] = [:]

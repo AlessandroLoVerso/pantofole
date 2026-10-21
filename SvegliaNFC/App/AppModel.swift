@@ -221,7 +221,7 @@ final class AppModel {
     }
 
     func scheduleTestAlarm() async {
-        await scheduler.scheduleTest(now: .now)
+        await scheduler.scheduleTest(now: .now, sound: testAlarmSound)
         updateRinging()
     }
 
