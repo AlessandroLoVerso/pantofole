@@ -201,9 +201,10 @@ final class AlarmScheduler {
     }
 
     private func configuration(_ schedule: Alarm.Schedule, sound: String) -> AlarmManager.AlarmConfiguration<WakeMetadata> {
+        // Same wording for tag and mission alarms: the button opens the app on whichever one applies.
         let alert = AlarmPresentation.Alert(
-            title: "Alzati e vai al tuo tag",
-            secondaryButton: AlarmButton(text: "Scansiona", textColor: .white, systemImageName: "wave.3.right"),
+            title: "Alzati per spegnerla",
+            secondaryButton: AlarmButton(text: "Spegnila", textColor: .white, systemImageName: "sunrise.fill"),
             secondaryButtonBehavior: .custom
         )
         let attributes = AlarmAttributes<WakeMetadata>(
