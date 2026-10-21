@@ -86,7 +86,9 @@ struct SettingsView: View {
                     Text("Con più tag puoi spegnere la sveglia da uno qualsiasi, per esempio uno in bagno e uno in cucina.")
                 }
 
+                #if APP_BLOCKS
                 BlocksSection()
+                #endif
 
                 Section("Come funziona") {
                     rule("nosign", "Niente posticipo", "Non c'è un tasto per rimandarla.")

@@ -1,3 +1,5 @@
+// Compiled only with APP_BLOCKS: v1 ships without app blocks (see `AppConfig`).
+#if APP_BLOCKS
 import FamilyControls
 import ManagedSettings
 import SvegliaCore
@@ -636,3 +638,4 @@ enum BlockText {
         return parts.joined(separator: " · ")
     }
 }
+#endif

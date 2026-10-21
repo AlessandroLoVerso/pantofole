@@ -17,6 +17,12 @@ enum AppConfig {
     /// so many alarms never push the app past AlarmKit's limit.
     static let maxChains = 3
 
+    // App blocks (Screen Time) are compiled only with the `APP_BLOCKS` Swift flag. v1 ships without
+    // them: the App Store needs Apple's Family Controls (Distribution) approval first. To bring them
+    // back: add `APP_BLOCKS` to the app target's Swift compilation conditions, put the
+    // family-controls and app-group entitlements back in `Config/SvegliaNFC.entitlements`, and
+    // embed BlockMonitor and BlockShield in the app again ("Embed Foundation Extensions").
+
     /// The trial alarm offered after pairing a tag: rings after a few seconds, three times.
     static let testDelay: TimeInterval = 10
     static let testRings = 3

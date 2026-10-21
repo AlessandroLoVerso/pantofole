@@ -140,13 +140,10 @@
 				5A0F00000000000000000007 /* Sources */,
 				5A0F00000000000000000003 /* Frameworks */,
 				5A0F00000000000000000008 /* Resources */,
-				5A0FB10C000000000000000C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				5A0FB10C000000000000000D /* PBXTargetDependency */,
-				5A0FB10C000000000000000E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5A0F00000000000000000002 /* SvegliaNFC */,

@@ -23,7 +23,9 @@ struct HomeView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         notices
+                        #if APP_BLOCKS
                         BlockStatusCard(now: now)
+                        #endif
                         if GoodNightButton.isEvening(now) {
                             GoodNightButton(style: .hero)
                         }

@@ -1,3 +1,5 @@
+// Compiled only with APP_BLOCKS: v1 ships without app blocks (see `AppConfig`).
+#if APP_BLOCKS
 import DeviceActivity
 import FamilyControls
 import Foundation
@@ -178,3 +180,4 @@ enum BlockPreset: CaseIterable, Identifiable {
         AppBlock(name: title, window: window)
     }
 }
+#endif
