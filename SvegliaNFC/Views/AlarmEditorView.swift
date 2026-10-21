@@ -9,6 +9,7 @@ struct AlarmEditorView: View {
     @State private var time: Date
     @State private var weekdays: Set<Int>
     @State private var label: String
+    @State private var soundName: String
     @State private var confirmsDelete = false
     /// Nil for a new alarm until the user picks: the default depends on whether a tag is paired.
     @State private var chosenMethod: DismissMethod?
@@ -21,6 +22,7 @@ struct AlarmEditorView: View {
         _time = State(initialValue: Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: .now) ?? .now)
         _weekdays = State(initialValue: Set(item?.weekdays ?? Array(2...6)))
         _label = State(initialValue: item?.label ?? "")
+        _soundName = State(initialValue: item?.soundName ?? RingtoneCatalog.defaultSoundName)
         _chosenMethod = State(initialValue: item?.method)
         _difficulty = State(initialValue: item?.difficulty ?? .medium)
     }
@@ -50,6 +52,7 @@ struct AlarmEditorView: View {
 
                     DismissMethodSection(method: method, difficulty: $difficulty, hasTag: !model.tags.isEmpty)
                         .card()
+                    SoundRow(soundName: $soundName)
 
                     TextField("Nome (facoltativo)", text: $label)
                         .textInputAutocapitalization(.sentences)
@@ -112,6 +115,7 @@ struct AlarmEditorView: View {
             item.minute = minute
             item.weekdays = days
             item.label = trimmed
+            item.soundName = soundName
             item.isEnabled = true
             item.method = method.wrappedValue
             item.difficulty = difficulty
@@ -120,6 +124,7 @@ struct AlarmEditorView: View {
             let newItem = AlarmItem(hour: hour, minute: minute, weekdays: days, label: trimmed)
             newItem.method = method.wrappedValue
             newItem.difficulty = difficulty
+            newItem.soundName = soundName
             Task { await model.add(newItem) }
         }
         dismiss()
@@ -180,5 +185,32 @@ private struct DayPresets: View {
             }
         }
         .scrollIndicators(.hidden)
+    }
+}
+
+/// "Suoneria" row of the editor: shows the current sound, opens the picker.
+private struct SoundRow: View {
+    @Binding var soundName: String
+
+    var body: some View {
+        NavigationLink {
+            RingtonePickerView(selection: $soundName)
+        } label: {
+            HStack(spacing: 12) {
+                Text("Suoneria").font(.headline)
+                Spacer(minLength: 8)
+                Text(RingtoneCatalog.displayName(for: soundName))
+                    .foregroundStyle(Theme.muted)
+                    .lineLimit(1)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.muted)
+                    .accessibilityHidden(true)
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .card()
+        .accessibilityHint("Scegli il suono della sveglia")
     }
 }

@@ -18,6 +18,8 @@ final class AlarmItem {
     var dismissMethod = DismissMethod.tag.rawValue
     /// Raw value of `MissionDifficulty`, used when `dismissMethod` is the math mission.
     var missionDifficulty = MissionDifficulty.medium.rawValue
+    /// Sound file the alarm rings with (see `RingtoneCatalog`); empty means the standard iOS sound.
+    var soundName = RingtoneCatalog.defaultSoundName
 
     init(hour: Int, minute: Int, weekdays: [Int], label: String = "") {
         self.hour = hour

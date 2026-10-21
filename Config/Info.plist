@@ -10,6 +10,8 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Serve solo se vuoi svegliarti con un brano della tua libreria Musica. Il brano resta sul telefono.</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>Serve per leggere il tuo tag: è l'unico modo per spegnere la sveglia.</string>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
