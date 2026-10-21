@@ -17,6 +17,12 @@ enum AppConfig {
     /// so many alarms never push the app past AlarmKit's limit.
     static let maxChains = 3
 
+    /// Pages on the project site (GitHub Pages, `docs/`), linked from Settings. App Store review asks
+    /// for the privacy policy to be reachable from inside the app.
+    static let privacyPolicyURL = URL(string: "https://alessandroloverso.github.io/pantofole/privacy.html")!
+    static let termsURL = URL(string: "https://alessandroloverso.github.io/pantofole/termini.html")!
+    static let supportURL = URL(string: "https://alessandroloverso.github.io/pantofole/supporto.html")!
+
     // App blocks (Screen Time) are compiled only with the `APP_BLOCKS` Swift flag. v1 ships without
     // them: the App Store needs Apple's Family Controls (Distribution) approval first. To bring them
     // back: add `APP_BLOCKS` to the app target's Swift compilation conditions, put the

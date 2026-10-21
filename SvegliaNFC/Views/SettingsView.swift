@@ -93,12 +93,21 @@ struct SettingsView: View {
                 Section("Come funziona") {
                     rule("nosign", "Niente posticipo", "Non c'è un tasto per rimandarla.")
                     rule("arrow.clockwise", "Se la zittisci, ricomincia", "Il tasto Ferma o i tasti del volume la fermano per un minuto, poi suona di nuovo.")
-                    rule("lock.fill", "Bloccata nelle 8 ore prima", "Per modificarla o spegnerla la sera prima serve il tag.")
+                    rule("lock.fill", "Bloccata nelle 8 ore prima", "Per modificarla o spegnerla la sera prima serve il tag, o la missione se usi quella.")
                     rule("timer", "Uscita di emergenza", "Se nessuno scansiona il tag, dopo 30 minuti si ferma da sola.")
                 }
 
                 Section("Privacy") {
                     rule("hand.raised.fill", "Niente account", "Tutto resta sul tuo iPhone. Nessun dato viene inviato.")
+                    Link(destination: AppConfig.privacyPolicyURL) {
+                        Label("Privacy policy", systemImage: "lock.shield")
+                    }
+                    Link(destination: AppConfig.termsURL) {
+                        Label("Termini d'uso", systemImage: "doc.text")
+                    }
+                    Link(destination: AppConfig.supportURL) {
+                        Label("Supporto e domande frequenti", systemImage: "questionmark.circle")
+                    }
                 }
             }
             .scrollContentBackground(.hidden)

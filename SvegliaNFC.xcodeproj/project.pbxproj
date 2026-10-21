@@ -377,7 +377,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/SvegliaNFC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Config/Info.plist;
@@ -416,7 +416,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/SvegliaNFC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Config/Info.plist;
@@ -453,7 +453,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Config/BlockExtensions.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/BlockMonitor-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = BlockMonitor;
@@ -481,7 +481,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Config/BlockExtensions.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/BlockMonitor-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = BlockMonitor;
@@ -509,7 +509,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Config/BlockExtensions.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/BlockShield-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = BlockShield;
@@ -537,7 +537,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Config/BlockExtensions.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/BlockShield-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = BlockShield;
