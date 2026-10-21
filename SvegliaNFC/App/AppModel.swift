@@ -32,6 +32,8 @@ struct WakeSummary: Equatable {
 final class AppModel {
     let container: ModelContainer
     let scheduler = AlarmScheduler()
+    /// Loops the chosen ringtone while an alarm rings and the app is open.
+    let ringer = AlarmRinger()
     /// Sleep tracking: the "Buonanotte" session and its nights.
     let sleep: SleepTracker
     /// App blocks with Screen Time (see `Blocks/`).
@@ -108,8 +110,13 @@ final class AppModel {
 
     func updateRinging(now: Date = .now) {
         ringingStart = scheduler.ringingStart(items: alarms, now: now)
-        if ringingStart != nil {
+        if let start = ringingStart {
             isRingingScreenPresented = true
+            // The night is over: free the microphone session so the ringtone can play.
+            if sleep.isListening { sleep.finish(at: now) }
+            ringer.start(soundName: ringingSoundName(start: start, now: now))
+        } else {
+            ringer.stop()
         }
     }
 

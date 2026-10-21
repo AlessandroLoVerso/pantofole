@@ -32,6 +32,19 @@ final class AlarmScheduler {
     init() {
         authorization = AlarmManager.shared.authorizationState
         ledger = Ledger.load()
+        reregisterIfConfigurationChanged()
+    }
+
+    /// When the way alarms are configured changes (e.g. the sound handed to AlarmKit), alarms
+    /// registered by an older version are cancelled so the next sync registers them again.
+    private func reregisterIfConfigurationChanged() {
+        guard ledger.configurationVersion != Ledger.currentConfigurationVersion else { return }
+        for alarm in (try? manager.alarms) ?? [] where alarm.state != .alerting {
+            try? manager.cancel(id: alarm.id)
+        }
+        ledger.heads = [:]
+        ledger.chains = []
+        ledger.configurationVersion = Ledger.currentConfigurationVersion
     }
 
     func requestAuthorization() async -> Bool {
@@ -268,6 +281,11 @@ nonisolated private struct Ledger: Codable {
     var chains: [Chain] = []
     /// The last start stopped with the tag, per alarm, so its chain is not registered again.
     var stopped: [UUID: Date] = [:]
+    /// Bumped when the AlarmKit configuration changes; nil for ledgers saved before it existed.
+    var configurationVersion: Int?
+
+    /// 2: the system alarm sound instead of named ringtones (silent on iOS 26.1).
+    static let currentConfigurationVersion = 2
 
     private static let key = "alarmLedger"
 

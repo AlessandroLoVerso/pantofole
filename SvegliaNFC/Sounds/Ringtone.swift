@@ -74,15 +74,12 @@ enum RingtoneCatalog {
         return FileManager.default.fileExists(atPath: imported.path(percentEncoded: false)) ? imported : nil
     }
 
-    /// The sound handed to AlarmKit. A missing file falls back to the iOS sound, so an alarm never
-    /// ends up silent.
+    /// The sound handed to AlarmKit: always the iOS alarm sound for now.
+    ///
+    /// On iOS 26.1 (tested on an iPhone 15) a `.named` sound left the alarm silent, matching reports
+    /// on Apple's forums (threads 795417, 802620, 798140); in the iOS 26.2 Simulator it even crashes
+    /// SpringBoard. The chosen ringtone is played by `AlarmRinger` while the app is open instead.
     static func alertSound(for soundName: String) -> AlertConfiguration.AlertSound {
-        #if targetEnvironment(simulator)
-        // The iOS 26.2 Simulator's SpringBoard crashes (ToneLibrary: -[AVAudioSession reporterID]
-        // unrecognized selector) when an AlarmKit alarm plays a named sound. Real devices are unaffected.
-        return .default
-        #else
-        return url(for: soundName) == nil ? .default : .named(soundName)
-        #endif
+        .default
     }
 }

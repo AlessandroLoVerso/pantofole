@@ -1,6 +1,16 @@
 import Foundation
+import SvegliaCore
 
 extension AppModel {
+    /// The ringtone of the alarm ringing now; the trial alarm uses `testAlarmSound`.
+    func ringingSoundName(start: Date, now: Date = .now) -> String {
+        let item = alarms.first {
+            $0.isEnabled
+                && Occurrences.active(rule: $0.rule, armedAt: $0.armedAt, now: now, chain: AppConfig.chain) == start
+        }
+        return item?.soundName ?? testAlarmSound
+    }
+
     /// Moves every alarm ringing with `old` to `new` (e.g. when one of the user's songs is deleted)
     /// and re-registers them with AlarmKit.
     func replaceSound(_ old: String, with new: String) async {
