@@ -1,7 +1,8 @@
 build/
+build-*/
 .build/
 .swiftpm/
+.claude/
 xcuserdata/
 *.xcuserstate
 .DS_Store
-build-missioni/

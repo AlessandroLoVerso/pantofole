@@ -32,6 +32,8 @@ struct WakeSummary: Equatable {
 final class AppModel {
     let container: ModelContainer
     let scheduler = AlarmScheduler()
+    /// Sleep tracking: the "Buonanotte" session and its nights.
+    let sleep: SleepTracker
     private let scanner = TagScanner()
 
     /// Start of the alarm that is ringing right now (its chain is running), if any.
@@ -45,10 +47,11 @@ final class AppModel {
 
     init() {
         do {
-            container = try ModelContainer(for: AlarmItem.self, PairedTag.self, WakeRecord.self)
+            container = try ModelContainer(for: AlarmItem.self, PairedTag.self, WakeRecord.self, SleepSession.self)
         } catch {
             fatalError("Impossibile aprire il database: \(error)")
         }
+        sleep = SleepTracker(container: container)
     }
 
     // MARK: - Reading state
@@ -202,6 +205,7 @@ final class AppModel {
         let wasTest = scheduler.stopChain(startedAt: start, items: alarms, now: now)
         if !wasTest {
             context.insert(WakeRecord(alarmStart: start, stoppedAt: now))
+            sleep.finish(at: now)
         }
         let summary = WakeSummary(secondsToScan: now.timeIntervalSince(start), streak: WakeInsights.streak(wakeResults))
         lastWake = summary
